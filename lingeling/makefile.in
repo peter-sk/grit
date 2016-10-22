@@ -1,0 +1,20 @@
+CC=@CC@
+CFLAGS=@CFLAGS@
+lingeling: lglmain.o liblgl.a makefile
+	$(CC) $(CFLAGS) -o $@ lglmain.o -L. -llgl -lm
+lglmain.o: lglmain.c lglib.h makefile
+	$(CC) $(CFLAGS) -c lglmain.c
+liblgl.a: lglib.o lglbnr.o makefile
+	ar rc $@ lglib.o lglbnr.o
+	ranlib $@
+lglib.o: lglib.c lglib.h makefile
+	$(CC) $(CFLAGS) -c lglib.c
+lglbnr.o: lglbnr.c lglcfg.h lglcflags.h makefile
+	$(CC) $(CFLAGS) -c lglbnr.c
+lglcfg.h: VERSION mkconfig lglbnr.c lglib.c lglmain.c lglcflags.h makefile
+	rm -f $@
+	./mkconfig > $@
+lglcflags.h: makefile
+	rm -f $@
+	echo '#define LGL_CC "$(shell $(CC) --version|head -1)"' >> $@
+	echo '#define LGL_CFLAGS "$(CFLAGS)"' >> $@

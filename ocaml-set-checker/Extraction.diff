@@ -1,0 +1,78 @@
+*** Checker.mli	Fri Oct 21 13:04:15 2016
+--- Checker_working.mli	Fri Oct 21 12:59:57 2016
+***************
+*** 832,843 ****
+--- 832,855 ----
+  | Pos of int
+  | Neg of int
+  
++ module SetOfLiterals :
++   sig
++     type t
++   end
++ 
+  val negate : literal -> literal
+  
+  val literal_compare : literal -> literal -> comparison
+  
+  type clause = literal list
+  
++ module SetOfClauses :
++   sig
++     type t
++     val add : clause -> t -> t
++     val empty : t
++   end
++ 
+  val clause_compare : clause -> clause -> comparison
+  
+  type setClause = SetOfLiterals.t
+*** Checker.ml	Fri Oct 21 13:04:15 2016
+--- Checker_working.ml	Fri Oct 21 12:59:54 2016
+***************
+*** 3516,3521 ****
+--- 3516,3526 ----
+  | Pos of int
+  | Neg of int
+  
++ module SetOfLiterals = Set.Make(struct
++     type t = literal
++     let compare = compare
++   end)
++ 
+  (** val negate : literal -> literal **)
+  
+  let negate = function
+***************
+*** 3539,3544 ****
+--- 3544,3554 ----
+  
+  type clause = literal list
+  
++ module SetOfClauses = Set.Make(struct
++     type t = clause
++     let compare = compare
++   end)
++ 
+  (** val clause_compare : clause -> clause -> comparison **)
+  
+  let rec clause_compare cl cl' =
+***************
+*** 3559,3566 ****
+  
+  (** val clause_to_SetClause : clause -> setClause **)
+  
+! let rec clause_to_SetClause = function
+! | Nil -> SetOfLiterals.empty
+  | Cons (l, cl') -> SetOfLiterals.add l (clause_to_SetClause cl')
+  
+  (** val true_SC : setClause **)
+--- 3569,3576 ----
+  
+  (** val clause_to_SetClause : clause -> setClause **)
+  
+! let rec clause_to_SetClause = function
+! | Nil -> SetOfLiterals.empty
+  | Cons (l, cl') -> SetOfLiterals.add l (clause_to_SetClause cl')
+  
+  (** val true_SC : setClause **)
